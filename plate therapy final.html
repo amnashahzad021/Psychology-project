@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#FFF9F0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>plate therapy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --pk:#FFD6E8;--pkm:#F9A8D4;--pkt:#9D174D;
+  --mn:#C9F0DE;--mnm:#6EE7B7;--mnt:#065F46;
+  --lv:#E5D4FF;--lvm:#C4B5FD;--lvt:#5B21B6;
+  --pc:#FFE5CC;--pcm:#FDB97D;--pct:#92400E;
+  --sk:#D1EFFE;--skm:#93C5FD;--skt:#1E3A8A;
+  --yl:#FEF3C7;--ylm:#FCD34D;--ylt:#78350F;
+  --cream:#FFF9F0;--card:#FFFFFF;--bdr:#F0D5ED;
+  --tx:#2D1B3D;--tx2:#7C5C8A;--tx3:#B08DBE;
+}
+html,body{height:100%;background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--tx);overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(circle at 8% 10%,#FFD6E8 0,#FFD6E8 16px,transparent 17px),
+    radial-gradient(circle at 93% 7%,#C9F0DE 0,#C9F0DE 12px,transparent 13px),
+    radial-gradient(circle at 5% 35%,#E5D4FF 0,#E5D4FF 14px,transparent 15px),
+    radial-gradient(circle at 95% 30%,#FEF3C7 0,#FEF3C7 10px,transparent 11px),
+    radial-gradient(circle at 6% 62%,#FFE5CC 0,#FFE5CC 16px,transparent 17px),
+    radial-gradient(circle at 94% 60%,#D1EFFE 0,#D1EFFE 11px,transparent 12px),
+    radial-gradient(circle at 5% 85%,#FFD6E8 0,#FFD6E8 13px,transparent 14px),
+    radial-gradient(circle at 94% 87%,#C9F0DE 0,#C9F0DE 15px,transparent 16px);
+  opacity:.65;}
+
+#app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;}
+
+.top-bar{padding:16px 16px 0;text-align:center;}
+.top-bar h1{font-family:'DM Serif Display',serif;font-size:26px;color:var(--lvt);}
+.top-bar p{font-size:12px;color:var(--tx3);margin-top:2px;}
+
+.name-wrap{padding:12px 16px 0;}
+.name-input{width:100%;padding:12px 16px;border-radius:24px;border:1.5px solid var(--bdr);background:var(--card);color:var(--tx);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
+.name-input:focus{border-color:var(--pkm);}
+.name-input::placeholder{color:var(--tx3);}
+
+.page-content{flex:1;overflow-y:auto;padding:12px 16px 100px;-webkit-overflow-scrolling:touch;}
+.page{display:none;}.page.active{display:block;}
+
+.cat-label{font-size:11px;color:var(--tx3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin:14px 0 7px;}
+.food-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
+.fi{background:var(--card);border:1.5px solid var(--bdr);border-radius:16px;padding:12px 6px 10px;text-align:center;cursor:pointer;transition:all .15s;user-select:none;min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;-webkit-user-select:none;}
+.fi:active{transform:scale(.95);}
+.fi.sel{background:var(--lv);border-color:var(--lvm);}
+.fi .ico{font-size:26px;margin-bottom:4px;line-height:1;}
+.fi .nm{font-size:11px;color:var(--tx2);font-weight:500;line-height:1.2;}
+
+.plate-box{background:var(--cream);border:2px dashed var(--pkm);border-radius:20px;padding:12px;min-height:64px;margin:12px 0;}
+.plate-lbl{font-size:11px;color:var(--tx3);margin-bottom:8px;font-weight:500;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{background:var(--pk);border-radius:20px;padding:6px 12px;font-size:13px;color:var(--pkt);display:flex;align-items:center;gap:5px;font-weight:500;}
+.chip .rm{cursor:pointer;opacity:.5;font-size:18px;line-height:1;padding-left:2px;}
+.empty-msg{font-size:13px;color:var(--tx3);padding:8px 0;}
+
+.score-row{display:flex;align-items:center;justify-content:space-between;background:var(--lv);border-radius:18px;padding:12px 18px;margin:10px 0;}
+.score-big{font-size:32px;font-weight:600;color:var(--lvt);font-family:'DM Serif Display',serif;}
+.score-sub{font-size:11px;color:var(--lvt);opacity:.7;}
+.sbadge{font-size:12px;padding:6px 14px;border-radius:20px;font-weight:600;}
+
+.vtoggle{display:flex;gap:6px;margin:10px 0;}
+.vbtn{flex:1;padding:9px 0;border-radius:20px;border:1.5px solid var(--bdr);background:var(--card);color:var(--tx2);cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.vbtn.active{background:var(--lv);color:var(--lvt);border-color:var(--lvm);}
+
+.meters{display:flex;flex-direction:column;gap:8px;margin:8px 0;}
+.mc{background:var(--card);border:1.5px solid var(--bdr);border-radius:14px;padding:10px 14px;}
+.ml{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:500;}
+.mv{font-weight:600;color:var(--tx);}
+.bbg{height:8px;border-radius:4px;background:#F3E8FF;overflow:hidden;}
+.bf{height:8px;border-radius:4px;transition:width .4s ease;}
+.mtip{font-size:11px;color:var(--tx3);margin-top:5px;line-height:1.4;}
+
+.insight{background:var(--yl);border-radius:14px;padding:12px 14px;margin:8px 0;font-size:13px;color:var(--ylt);line-height:1.5;}
+.sbtn{width:100%;padding:15px;border-radius:20px;border:none;background:var(--pkm);color:var(--pkt);cursor:pointer;font-size:15px;font-weight:600;margin-top:10px;font-family:'DM Sans',sans-serif;}
+.sbtn:active{opacity:.8;}
+
+.brain-wrap{background:var(--card);border:1.5px solid var(--bdr);border-radius:20px;padding:14px;margin:10px 0;}
+.brain-svg-area svg{width:100%;border-radius:12px;}
+.brain-legend{display:flex;flex-direction:column;gap:7px;margin-top:12px;}
+.bli{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;background:var(--cream);border-radius:12px;}
+.bld{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.bln{font-size:12px;font-weight:600;color:var(--tx);}
+.bls{font-size:11px;color:var(--tx3);line-height:1.4;margin-top:1px;}
+.blact{font-size:11px;color:var(--lvt);margin-top:2px;}
+
+.mood-card{background:var(--card);border:1.5px solid var(--bdr);border-radius:20px;padding:14px;margin:10px 0;}
+.mood-chart{display:flex;align-items:flex-end;gap:6px;height:90px;margin:12px 0 6px;}
+.mood-bar{flex:1;border-radius:8px 8px 0 0;transition:height .5s ease,background .3s;}
+.mood-times{display:flex;gap:6px;}
+.mood-t{flex:1;text-align:center;font-size:10px;color:var(--tx3);}
+.mood-summary{font-size:12px;color:var(--tx2);line-height:1.6;margin-top:10px;padding:10px 12px;background:var(--cream);border-radius:12px;}
+
+.swap-card{background:var(--card);border:1.5px solid var(--bdr);border-radius:14px;padding:12px 14px;margin-bottom:9px;}
+.swap-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.swap-gain{font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--mn);color:var(--mnt);margin-left:auto;white-space:nowrap;}
+.swap-fact{font-size:12px;color:var(--tx2);line-height:1.5;}
+
+.stat2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.stat3m{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;}
+.sc{background:var(--card);border:1.5px solid var(--bdr);border-radius:14px;padding:12px 10px;text-align:center;}
+.sv{font-size:22px;font-weight:600;color:var(--lvt);font-family:'DM Serif Display',serif;}
+.sl{font-size:11px;color:var(--tx3);margin-top:2px;}
+
+.lb-top3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.pod{border-radius:16px;padding:14px 8px;text-align:center;border:1.5px solid var(--bdr);}
+.pod .pr{font-size:16px;margin-bottom:4px;}
+.pod .pn{font-size:12px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pod .ps{font-size:11px;color:var(--tx2);margin-top:2px;}
+.pod.p1{background:var(--yl);}.pod.p2{background:var(--sk);}.pod.p3{background:var(--pc);}
+
+.lb-list{display:flex;flex-direction:column;gap:7px;}
+.lb-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--bdr);border-radius:14px;padding:10px 13px;}
+.lb-row.you{background:var(--mn);border-color:var(--mnm);}
+.lbn{font-size:12px;color:var(--tx3);min-width:22px;text-align:center;font-weight:500;}
+.lbav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+.lbi{flex:1;min-width:0;}
+.lbp{font-size:13px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lbf{font-size:11px;color:var(--tx3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lbs{font-size:15px;font-weight:600;color:var(--lvt);font-family:'DM Serif Display',serif;}
+.lb-loading{text-align:center;font-size:13px;color:var(--tx3);padding:2rem 0;}
+
+.hist{display:flex;flex-direction:column;gap:8px;}
+.he{background:var(--card);border:1.5px solid var(--bdr);border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.he.best{background:var(--mn);border-color:var(--mnm);}
+.hef{font-size:13px;color:var(--tx2);font-weight:500;}
+.hed{font-size:11px;color:var(--tx3);margin-top:2px;}
+.hes{font-size:18px;font-weight:600;color:var(--lvt);font-family:'DM Serif Display',serif;white-space:nowrap;}
+
+.empty-state{text-align:center;padding:2.5rem 1rem;font-size:14px;color:var(--tx3);line-height:1.6;}
+.empty-state .big{font-size:36px;margin-bottom:12px;}
+.section-title{font-size:14px;font-weight:600;color:var(--tx);margin:14px 0 8px;}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,249,240,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1.5px solid var(--bdr);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;cursor:pointer;border:none;background:transparent;color:var(--tx3);font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-family:'DM Sans',sans-serif;gap:4px;min-height:58px;transition:color .15s;}
+.nav-btn.active{color:var(--pkt);}
+.nav-icon{font-size:20px;line-height:1;}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--mn);color:var(--mnt);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;transition:transform .3s ease;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar">
+    <h1>plate therapy</h1>
+    <p>build a meal · feed your brain · beat the board</p>
+  </div>
+  <div class="name-wrap">
+    <input class="name-input" id="pname" placeholder="your name (shows on leaderboard)" maxlength="20"/>
+  </div>
+
+  <div class="page-content">
+    <div class="page active" id="pg-build">
+      <div class="cat-label">proteins</div>
+      <div class="food-grid" id="gp"></div>
+      <div class="cat-label">carbs</div>
+      <div class="food-grid" id="gc"></div>
+      <div class="cat-label">fats + extras</div>
+      <div class="food-grid" id="gf"></div>
+      <div class="plate-box">
+        <div class="plate-lbl">your plate (max 6 foods)</div>
+        <div class="chips" id="platef"><span class="empty-msg">tap foods to add them</span></div>
+      </div>
+      <div class="score-row">
+        <div>
+          <div class="score-sub">plate score</div>
+          <div class="score-big" id="snum">0</div>
+        </div>
+        <div id="sbadge" class="sbadge" style="background:var(--lv);color:var(--lvt);">add foods</div>
+      </div>
+      <div class="vtoggle">
+        <button class="vbtn active" id="vn" onclick="setView('nutr')">nutrition</button>
+        <button class="vbtn" id="vp" onclick="setView('psych')">psychology</button>
+      </div>
+      <div class="meters" id="mgrid"></div>
+      <div class="insight" id="ibox" style="display:none;"></div>
+      <button class="sbtn" onclick="submitPlate()">save + analyse</button>
+    </div>
+
+    <div class="page" id="pg-brain">
+      <div class="section-title">brain scan</div>
+      <div id="bs-empty" class="empty-state"><div class="big">🧠</div>build your plate first, then come back to see which brain regions you are activating</div>
+      <div id="bs-content" style="display:none;">
+        <div class="brain-wrap">
+          <div class="brain-svg-area" id="brain-svg-area"></div>
+          <div class="brain-legend" id="brain-legend"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="pg-mood">
+      <div class="section-title">mood arc</div>
+      <div id="mood-empty" class="empty-state"><div class="big">📈</div>build your plate to see your predicted energy and mood over the next 4 hours</div>
+      <div id="mood-content" style="display:none;">
+        <div class="mood-card">
+          <div style="font-size:12px;color:var(--tx2);font-weight:500;">predicted energy + mood over 4 hours</div>
+          <div class="mood-chart" id="mood-bars"></div>
+          <div class="mood-times" id="mood-times"></div>
+          <div class="mood-summary" id="mood-summary"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="pg-swaps">
+      <div class="section-title">smart swaps</div>
+      <div id="sw-empty" class="empty-state"><div class="big">🔄</div>add foods to your plate to get personalised swap suggestions</div>
+      <div id="sw-content" style="display:none;"></div>
+    </div>
+
+    <div class="page" id="pg-lb">
+      <div class="section-title">leaderboard</div>
+      <div class="stat2">
+        <div class="sc"><div class="sv" id="lb-rank">--</div><div class="sl">your rank</div></div>
+        <div class="sc"><div class="sv" id="lb-best">0</div><div class="sl">your best</div></div>
+      </div>
+      <div class="lb-top3" id="lb-top3"></div>
+      <div class="lb-list" id="lb-rest"></div>
+      <div class="lb-loading" id="lb-loading" style="display:none;"></div>
+    </div>
+
+    <div class="page" id="pg-prog">
+      <div class="section-title">my progress</div>
+      <div class="stat3m">
+        <div class="sc"><div class="sv" id="ps">0</div><div class="sl">sessions</div></div>
+        <div class="sc"><div class="sv" id="pa">0</div><div class="sl">avg score</div></div>
+        <div class="sc"><div class="sv" id="pb">0</div><div class="sl">best</div></div>
+      </div>
+      <div class="hist" id="hist">
+        <div class="empty-state" style="padding:1.5rem 0;"><div class="big">🌱</div>no sessions yet - build your first plate!</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="showPage('build',this)"><span class="nav-icon">🍽️</span>build</button>
+    <button class="nav-btn" onclick="showPage('brain',this)"><span class="nav-icon">🧠</span>brain</button>
+    <button class="nav-btn" onclick="showPage('mood',this)"><span class="nav-icon">📈</span>mood</button>
+    <button class="nav-btn" onclick="showPage('swaps',this)"><span class="nav-icon">🔄</span>swaps</button>
+    <button class="nav-btn" onclick="showPage('lb',this)"><span class="nav-icon">🏆</span>board</button>
+    <button class="nav-btn" onclick="showPage('prog',this)"><span class="nav-icon">📊</span>me</button>
+  </nav>
+</div>
+
+<div class="toast" id="toast">saved!</div>
+
+<script>
+var FOODS = [
+  {id:'chicken',name:'Chicken',icon:'🍗',cat:'protein',serotonin:15,dopamine:10,cortisol:-5,energy:20,crash:-3,protein:26,carbs:0,fat:3,fact:'High tryptophan content acts as a serotonin precursor - calm and steady energy.'},
+  {id:'egg',name:'Eggs',icon:'🥚',cat:'protein',serotonin:10,dopamine:15,cortisol:-3,energy:15,crash:-2,protein:13,carbs:1,fat:10,fact:'Choline in eggs powers acetylcholine - the focus and memory neurotransmitter.'},
+  {id:'fish',name:'Salmon',icon:'🐟',cat:'protein',serotonin:20,dopamine:12,cortisol:-10,energy:18,crash:-2,protein:22,carbs:0,fat:12,fact:'Omega-3s directly reduce cortisol and strengthen serotonin receptors.'},
+  {id:'tofu',name:'Tofu',icon:'🫘',cat:'protein',serotonin:12,dopamine:8,cortisol:-4,energy:12,crash:-1,protein:17,carbs:2,fat:9,fact:'Isoflavones in tofu may support hormonal mood balance.'},
+  {id:'rice',name:'Brown rice',icon:'🍚',cat:'carb',serotonin:8,dopamine:5,cortisol:-2,energy:25,crash:-4,protein:3,carbs:45,fat:1,fact:'Complex carbs give slow glucose release - the brain\'s cleanest fuel.'},
+  {id:'bread',name:'White bread',icon:'🍞',cat:'carb',serotonin:10,dopamine:8,cortisol:3,energy:20,crash:-12,protein:4,carbs:50,fat:2,fact:'Refined carbs spike blood sugar rapidly, triggering a cortisol surge when it drops.'},
+  {id:'banana',name:'Banana',icon:'🍌',cat:'carb',serotonin:14,dopamine:6,cortisol:-6,energy:18,crash:-3,protein:1,carbs:27,fat:0,fact:'Vitamin B6 and tryptophan work together to directly produce serotonin.'},
+  {id:'oats',name:'Oats',icon:'🥣',cat:'carb',serotonin:10,dopamine:5,cortisol:-5,energy:22,crash:-2,protein:5,carbs:30,fat:3,fact:'Beta-glucan fibre slows digestion - no crash, just long stable energy.'},
+  {id:'avocado',name:'Avocado',icon:'🥑',cat:'fat',serotonin:5,dopamine:10,cortisol:-8,energy:15,crash:-1,protein:2,carbs:9,fat:21,fact:'Pantothenic acid (B5) nourishes adrenal glands that manage cortisol.'},
+  {id:'nuts',name:'Almonds',icon:'🥜',cat:'fat',serotonin:8,dopamine:10,cortisol:-9,energy:12,crash:-1,protein:6,carbs:6,fat:14,fact:'Magnesium directly calms the HPA axis - your brain\'s stress-control system.'},
+  {id:'darkchoc',name:'Dark choc',icon:'🍫',cat:'fat',serotonin:12,dopamine:20,cortisol:-7,energy:10,crash:-5,protein:2,carbs:13,fat:12,fact:'Phenylethylamine triggers dopamine release. Choose 70%+ for the real effect.'},
+  {id:'soda',name:'Soda',icon:'🥤',cat:'fat',serotonin:-5,dopamine:15,cortisol:12,energy:15,crash:-18,protein:0,carbs:39,fat:0,fact:'Sugar floods dopamine briefly then crashes - cortisol spikes to compensate.'}
+];
+
+var SWAPS = [
+  {from:'bread',to:'oats',reason:'Swapping white bread for oats cuts crash risk by 70% and adds beta-glucan for stable energy.'},
+  {from:'soda',to:'darkchoc',reason:'Dark choc keeps the dopamine hit but removes the cortisol spike and massive crash.'},
+  {from:'bread',to:'rice',reason:'Brown rice gives slower carbs, less cortisol response, and no 2pm slump.'},
+  {from:'soda',to:'banana',reason:'Banana gives natural sugar plus B6 for serotonin - opposite brain effect to soda.'},
+  {from:'tofu',to:'fish',reason:'Salmon adds omega-3s that directly reduce cortisol and build serotonin receptors.'},
+  {from:'egg',to:'fish',reason:'Salmon\'s omega-3s reduce neuroinflammation and support long-term mood stability.'}
+];
+
+var BRAIN_REGIONS = [
+  {id:'pfc',name:'Prefrontal cortex',cx:200,cy:72,rx:80,ry:36,color:'#E5D4FF',stroke:'#C4B5FD',txt:'#5B21B6',nutrient:'omega-3s, choline',foods:['fish','egg'],desc:'Focus, decisions, impulse control'},
+  {id:'hip',name:'Hippocampus',cx:110,cy:148,rx:60,ry:26,color:'#C9F0DE',stroke:'#6EE7B7',txt:'#065F46',nutrient:'omega-3s, magnesium',foods:['fish','nuts'],desc:'Memory, learning, stress regulation'},
+  {id:'amy',name:'Amygdala',cx:290,cy:142,rx:52,ry:24,color:'#FFD6E8',stroke:'#F9A8D4',txt:'#9D174D',nutrient:'magnesium, B6',foods:['nuts','banana'],desc:'Emotions, fear, anxiety response'},
+  {id:'hyp',name:'Hypothalamus',cx:200,cy:168,rx:58,ry:20,color:'#FEF3C7',stroke:'#FCD34D',txt:'#78350F',nutrient:'tryptophan, B vitamins',foods:['chicken','egg'],desc:'Hunger, stress hormones, mood'},
+  {id:'rap',name:'Raphe nuclei',cx:108,cy:208,rx:54,ry:20,color:'#FFE5CC',stroke:'#FDB97D',txt:'#92400E',nutrient:'tryptophan, B6',foods:['chicken','banana','fish'],desc:'Main serotonin production hub'},
+  {id:'vta',name:'VTA / reward',cx:292,cy:204,rx:58,ry:22,color:'#D1EFFE',stroke:'#93C5FD',txt:'#1E3A8A',nutrient:'phenylethylamine, tyrosine',foods:['darkchoc','egg'],desc:'Dopamine circuits and reward'}
+];
+
+var NUTR_M = [
+  {key:'protein',label:'Protein (g)',color:'#C4B5FD',tip:'Proteins build every neurotransmitter in your brain.'},
+  {key:'carbs',label:'Carbs (g)',color:'#93C5FD',tip:'Complex carbs = steady brain fuel. Refined carbs = crash.'},
+  {key:'fat',label:'Healthy fats (g)',color:'#6EE7B7',tip:'Essential for neuron structure and signalling.'},
+  {key:'energy',label:'Sustained energy',color:'#FDB97D',tip:'How long before you need to eat again.'}
+];
+
+var PSYCH_M = [
+  {key:'serotonin',label:'Serotonin',color:'#6EE7B7',tip:'Mood stability and calm. Built from tryptophan-rich foods.'},
+  {key:'dopamine',label:'Dopamine',color:'#C4B5FD',tip:'Motivation and reward. Fuelled by tyrosine.'},
+  {key:'cortisol',label:'Cortisol balance',color:'#FDB97D',tip:'Your stress hormone - good foods bring it down.'},
+  {key:'crash',label:'Crash risk',color:'#F9A8D4',tip:'Likelihood of energy and mood drop later.'}
+];
+
+var AV_COLS = [['#FFD6E8','#9D174D'],['#C9F0DE','#065F46'],['#E5D4FF','#5B21B6'],['#FEF3C7','#78350F'],['#D1EFFE','#1E3A8A'],['#FFE5CC','#92400E']];
+var LB_KEY = 'pt_leaderboard_v3';
+
+var plate = [];
+var localHistory = [];
+var currentView = 'nutr';
+
+function clamp(v,a,b){ return Math.min(b, Math.max(a, v)); }
+
+function getTotals(){
+  var t = {serotonin:0,dopamine:0,cortisol:0,energy:0,crash:0,protein:0,carbs:0,fat:0};
+  for(var i=0;i<plate.length;i++){
+    var f=plate[i];
+    var keys=Object.keys(t);
+    for(var k=0;k<keys.length;k++){
+      if(f[keys[k]]!==undefined) t[keys[k]]+=f[keys[k]];
+    }
+  }
+  return t;
+}
+
+function calcScore(t){
+  if(!plate.length) return 0;
+  var s = clamp(t.serotonin/80*30,0,30)
+        + clamp(t.dopamine/80*20,0,20)
+        + clamp((t.cortisol+30)/60*20,0,20)
+        + clamp(t.energy/100*20,0,20)
+        + clamp((-t.crash)/60*10,0,10);
+  return Math.round(clamp(s,0,100));
+}
+
+function buildGrids(){
+  var cats = [{cat:'protein',id:'gp'},{cat:'carb',id:'gc'},{cat:'fat',id:'gf'}];
+  for(var c=0;c<cats.length;c++){
+    var grid = document.getElementById(cats[c].id);
+    var filtered = FOODS.filter(function(f){ return f.cat===cats[c].cat; });
+    for(var i=0;i<filtered.length;i++){
+      (function(food){
+        var d = document.createElement('div');
+        d.className = 'fi';
+        d.id = 'fi-'+food.id;
+        d.innerHTML = '<div class="ico">'+food.icon+'</div><div class="nm">'+food.name+'</div>';
+        d.addEventListener('click', function(){ toggle(food.id); });
+        grid.appendChild(d);
+      })(filtered[i]);
+    }
+  }
+}
+
+function buildMeters(){
+  var g = document.getElementById('mgrid');
+  g.innerHTML = '';
+  var ms = currentView==='nutr' ? NUTR_M : PSYCH_M;
+  for(var i=0;i<ms.length;i++){
+    var m=ms[i];
+    var d=document.createElement('div');
+    d.className='mc';
+    d.innerHTML='<div class="ml"><span>'+m.label+'</span><span class="mv" id="mv-'+m.key+'">0</span></div>'
+      +'<div class="bbg"><div class="bf" id="mb-'+m.key+'" style="width:0%;background:'+m.color+'"></div></div>'
+      +'<div class="mtip" id="mt-'+m.key+'">'+m.tip+'</div>';
+    g.appendChild(d);
+  }
+}
+
+function setView(v){
+  currentView=v;
+  document.getElementById('vn').classList.toggle('active',v==='nutr');
+  document.getElementById('vp').classList.toggle('active',v==='psych');
+  buildMeters();
+  updateMeters();
+}
+
+function toggle(id){
+  var idx=-1;
+  for(var i=0;i<plate.length;i++){ if(plate[i].id===id){idx=i;break;} }
+  if(idx>=0){
+    plate.splice(idx,1);
+  } else {
+    if(plate.length>=6){ alert('Max 6 foods per plate!'); return; }
+    var food=null;
+    for(var i=0;i<FOODS.length;i++){ if(FOODS[i].id===id){food=FOODS[i];break;} }
+    if(food) plate.push(food);
+  }
+  updateAll();
+}
+
+function updateAll(){
+  updateChips();
+  updateHighlights();
+  updateScoreBadge();
+  updateMeters();
+  updateInsight();
+  updateBrain();
+  updateMood();
+  updateSwaps();
+}
+
+function updateChips(){
+  var el=document.getElementById('platef');
+  if(!plate.length){
+    el.innerHTML='<span class="empty-msg">tap foods to add them</span>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<plate.length;i++){
+    html+='<div class="chip"><span style="font-size:18px">'+plate[i].icon+'</span> '+plate[i].name
+      +'<span class="rm" data-id="'+plate[i].id+'" style="cursor:pointer;opacity:.5;font-size:18px;line-height:1;padding-left:2px;">x</span></div>';
+  }
+  el.innerHTML=html;
+  var rms=el.querySelectorAll('.rm');
+  for(var i=0;i<rms.length;i++){
+    (function(btn){ btn.addEventListener('click',function(e){ e.stopPropagation(); toggle(btn.getAttribute('data-id')); }); })(rms[i]);
+  }
+}
+
+function updateHighlights(){
+  for(var i=0;i<FOODS.length;i++){
+    var el=document.getElementById('fi-'+FOODS[i].id);
+    if(!el) continue;
+    var found=false;
+    for(var j=0;j<plate.length;j++){ if(plate[j].id===FOODS[i].id){found=true;break;} }
+    if(found) el.classList.add('sel'); else el.classList.remove('sel');
+  }
+}
+
+function updateScoreBadge(){
+  var t=getTotals(); var score=calcScore(t);
+  document.getElementById('snum').textContent=score;
+  var b=document.getElementById('sbadge');
+  var txt,bg,col;
+  if(!plate.length){ txt='add foods'; bg='var(--lv)'; col='var(--lvt)'; }
+  else if(score>=80){ txt='superstar plate!'; bg='var(--mn)'; col='var(--mnt)'; }
+  else if(score>=70){ txt='pretty good!'; bg='var(--yl)'; col='var(--ylt)'; }
+  else if(score>=55){ txt='could be better'; bg='var(--pc)'; col='var(--pct)'; }
+  else { txt='needs work'; bg='var(--pk)'; col='var(--pkt)'; }
+  b.textContent=txt; b.style.background=bg; b.style.color=col;
+}
+
+function updateMeters(){
+  var t=getTotals();
+  var ms=currentView==='nutr'?NUTR_M:PSYCH_M;
+  for(var i=0;i<ms.length;i++){
+    var m=ms[i];
+    var ev=document.getElementById('mv-'+m.key);
+    var eb=document.getElementById('mb-'+m.key);
+    var et=document.getElementById('mt-'+m.key);
+    if(!ev) continue;
+    var pct=0, disp='0', tip=m.tip;
+    if(currentView==='nutr'){
+      var maxes={protein:60,carbs:100,fat:40,energy:120};
+      var mx=maxes[m.key]||100;
+      pct=clamp((t[m.key]/mx)*100,0,100);
+      disp=String(Math.round(t[m.key]));
+      if(plate.length){
+        if(m.key==='protein') tip=t.protein>30?'Great protein for neurotransmitters.':t.protein>15?'Decent - add another protein source.':'Low protein. Neurons need more.';
+        if(m.key==='carbs') tip=t.carbs>60?'High carbs - complex ones sustain you, refined ones crash you.':'Moderate carb load.';
+        if(m.key==='fat') tip=t.fat>20?'Great healthy fats - neurons love this.':'Low fat - consider avocado or almonds.';
+        if(m.key==='energy') tip=t.energy>50?'Sustained energy incoming.':'Low energy foods - add complex carbs.';
+      }
+    } else {
+      if(m.key==='crash'){
+        var w=plate.length*18;
+        pct=w?clamp((-t.crash/w)*100,0,100):0;
+        disp=Math.round(pct)+'%';
+      } else if(m.key==='cortisol'){
+        var n=t.cortisol;
+        pct=clamp(((n+30)/60)*100,0,100);
+        disp=(n>=0?'+':'')+Math.round(n);
+      } else {
+        var mx2=100;
+        pct=clamp((t[m.key]/mx2)*100,0,100);
+        disp=String(Math.round(t[m.key]));
+      }
+      if(plate.length){
+        if(m.key==='serotonin') tip=t.serotonin>40?'Great mood support - calm and stable.':t.serotonin>15?'Decent - add salmon or banana.':'Low serotonin foods.';
+        if(m.key==='dopamine') tip=t.dopamine>40?'High dopamine - motivation unlocked.':'Add dark choc or eggs for more.';
+        if(m.key==='cortisol') tip=t.cortisol<0?'These foods actively lower stress hormones.':t.cortisol>5?'Some foods may spike cortisol.':'Neutral cortisol impact.';
+        if(m.key==='crash') tip=parseInt(disp)<20?'Low crash risk - steady as she goes.':parseInt(disp)<50?'Moderate crash risk.':'High crash risk - sugar spike incoming!';
+      }
+    }
+    ev.textContent=disp;
+    eb.style.width=Math.round(pct)+'%';
+    if(et) et.textContent=tip;
+  }
+}
+
+function updateInsight(){
+  var ib=document.getElementById('ibox');
+  if(!plate.length){ ib.style.display='none'; return; }
+  var top=plate[0];
+  for(var i=1;i<plate.length;i++){
+    if((plate[i].serotonin+plate[i].dopamine)>(top.serotonin+top.dopamine)) top=plate[i];
+  }
+  ib.style.display='block';
+  ib.innerHTML='<strong>brain highlight:</strong> '+top.icon+' '+top.name+' - '+top.fact;
+}
+
+function updateBrain(){
+  var e=document.getElementById('bs-empty'), c=document.getElementById('bs-content');
+  if(!plate.length){ e.style.display='block'; c.style.display='none'; return; }
+  e.style.display='none'; c.style.display='block';
+  var pids={};
+  for(var i=0;i<plate.length;i++) pids[plate[i].id]=true;
+  function act(r){ for(var i=0;i<r.foods.length;i++){ if(pids[r.foods[i]]) return true; } return false; }
+  var svg='<svg width="100%" viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">';
+  svg+='<ellipse cx="200" cy="148" rx="175" ry="115" fill="#FFF9F0" stroke="#F0D5ED" stroke-width="1.5"/>';
+  for(var i=0;i<BRAIN_REGIONS.length;i++){
+    var r=BRAIN_REGIONS[i]; var a=act(r);
+    svg+='<ellipse cx="'+r.cx+'" cy="'+r.cy+'" rx="'+r.rx+'" ry="'+r.ry+'" fill="'+(a?r.color:'#F8F0FC')+'" stroke="'+(a?r.stroke:'#E8D5F0')+'" stroke-width="'+(a?2:1)+'" opacity="'+(a?1:.5)+'"/>';
+    svg+='<text x="'+r.cx+'" y="'+(r.cy+4)+'" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9.5" font-weight="'+(a?600:400)+'" fill="'+(a?r.txt:'#B08DBE')+'">'+r.name+'</text>';
+  }
+  svg+='</svg>';
+  document.getElementById('brain-svg-area').innerHTML=svg;
+  var leg=document.getElementById('brain-legend'); leg.innerHTML='';
+  for(var i=0;i<BRAIN_REGIONS.length;i++){
+    var r=BRAIN_REGIONS[i]; var a=act(r);
+    var d=document.createElement('div'); d.className='bli'; d.style.opacity=a?'1':'.5';
+    d.innerHTML='<div class="bld" style="background:'+(a?r.color:'#E8D5F0')+';border:1.5px solid '+(a?r.stroke:'#D0B8E0')+'"></div>'
+      +'<div><div class="bln">'+r.name+(a?' *':'')+'</div>'
+      +'<div class="bls">'+r.desc+'</div>'
+      +'<div class="blact">'+(a?'activated by: '+r.nutrient:'add '+r.foods.join(' or ')+' to activate')+'</div></div>';
+    leg.appendChild(d);
+  }
+}
+
+function updateMood(){
+  var e=document.getElementById('mood-empty'), c=document.getElementById('mood-content');
+  if(!plate.length){ e.style.display='block'; c.style.display='none'; return; }
+  e.style.display='none'; c.style.display='block';
+  var t=getTotals();
+  var cr=Math.abs(t.crash)/Math.max(plate.length*18,1);
+  var eb=clamp(t.energy/120,0,1), sb=clamp(t.serotonin/80,0,1);
+  var times=['now','30m','1h','2h','3h','4h'];
+  var vals=[];
+  for(var i=0;i<times.length;i++){
+    var v=eb*.85+sb*.15;
+    if(i===0) v=v*.7+.3;
+    if(i===1) v=clamp(v*1.1,0,1);
+    if(i===3) v=clamp(v-cr*.3,.1,1);
+    if(i===4) v=clamp(v-cr*.5,.1,1);
+    if(i===5) v=clamp(v-cr*.65,.05,1);
+    vals.push(v);
+  }
+  var barsEl=document.getElementById('mood-bars'); barsEl.innerHTML='';
+  for(var i=0;i<vals.length;i++){
+    var h=Math.round(vals[i]*78)+8;
+    var col=vals[i]<.35?'#F9A8D4':vals[i]<.6?'#FDB97D':'#6EE7B7';
+    var bar=document.createElement('div'); bar.className='mood-bar';
+    bar.style.height=h+'px'; bar.style.background=col;
+    barsEl.appendChild(bar);
+  }
+  var timesEl=document.getElementById('mood-times'); timesEl.innerHTML='';
+  for(var i=0;i<times.length;i++){
+    var span=document.createElement('div'); span.className='mood-t'; span.textContent=times[i];
+    timesEl.appendChild(span);
+  }
+  var ct=cr>.5?'High crash risk - energy likely dips significantly after 2-3 hours. Swap refined carbs for oats.':cr>.25?'Moderate energy curve - slight dip expected around the 3h mark.':'Smooth, sustained energy expected. This plate is doing great things.';
+  var st=sb>.5?' Serotonin support is strong - mood stays stable.':sb>.25?' Some mood support - slight fluctuation possible.':' Low serotonin - add salmon or banana for mood stability.';
+  document.getElementById('mood-summary').textContent=ct+st;
+}
+
+function updateSwaps(){
+  var e=document.getElementById('sw-empty'), c=document.getElementById('sw-content');
+  if(!plate.length){ e.style.display='block'; c.style.display='none'; return; }
+  e.style.display='none'; c.style.display='block';
+  var pids={};
+  for(var i=0;i<plate.length;i++) pids[plate[i].id]=true;
+  var applicable=[];
+  for(var i=0;i<SWAPS.length;i++){
+    if(pids[SWAPS[i].from] && !pids[SWAPS[i].to]) applicable.push(SWAPS[i]);
+  }
+  var tOrig=getTotals(); var sOrig=calcScore(tOrig);
+  if(!applicable.length){
+    c.innerHTML='<div class="empty-state" style="padding:1.5rem 0;"><div class="big">*</div>Your plate is already optimised - no better swaps available!</div>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<applicable.length;i++){
+    var sw=applicable[i];
+    var ff=null,tf=null;
+    for(var j=0;j<FOODS.length;j++){
+      if(FOODS[j].id===sw.from) ff=FOODS[j];
+      if(FOODS[j].id===sw.to) tf=FOODS[j];
+    }
+    if(!ff||!tf) continue;
+    var swapped=[];
+    for(var j=0;j<plate.length;j++){ if(plate[j].id!==sw.from) swapped.push(plate[j]); }
+    swapped.push(tf);
+    var tN={serotonin:0,dopamine:0,cortisol:0,energy:0,crash:0,protein:0,carbs:0,fat:0};
+    for(var j=0;j<swapped.length;j++){
+      var fj=swapped[j]; var ks=Object.keys(tN);
+      for(var k=0;k<ks.length;k++){ if(fj[ks[k]]!==undefined) tN[ks[k]]+=fj[ks[k]]; }
+    }
+    var fakeplate=plate; plate=swapped;
+    var gain=calcScore(tN)-sOrig;
+    plate=fakeplate;
+    html+='<div class="swap-card"><div class="swap-header">'
+      +'<span style="font-size:22px">'+ff.icon+'</span>'
+      +'<span style="font-size:13px;color:var(--tx2)">'+ff.name+'</span>'
+      +'<span style="color:var(--tx3);font-size:16px;margin:0 2px;">to</span>'
+      +'<span style="font-size:22px">'+tf.icon+'</span>'
+      +'<span style="font-size:13px;color:var(--tx2)">'+tf.name+'</span>'
+      +'<span class="swap-gain">'+(gain>=0?'+':'')+gain+' pts</span>'
+      +'</div><div class="swap-fact">'+sw.reason+'</div></div>';
+  }
+  c.innerHTML=html;
+}
+
+function getLB(){
+  try{ var d=localStorage.getItem(LB_KEY); return d?JSON.parse(d):[]; }catch(e){ return []; }
+}
+function saveLB(lb){ try{ localStorage.setItem(LB_KEY,JSON.stringify(lb)); }catch(e){} }
+
+function submitPlate(){
+  if(!plate.length){ alert('Add some foods first!'); return; }
+  var name=(document.getElementById('pname').value.trim()||'anonymous').substring(0,20);
+  var t=getTotals(); var score=calcScore(t);
+  var foods=[];
+  for(var i=0;i<plate.length;i++) foods.push(plate[i].name);
+  var now=new Date();
+  var dateStr=now.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()]+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  localHistory.unshift({name:name,foods:foods,score:score,date:dateStr});
+  var lb=getLB();
+  var ei=-1;
+  for(var i=0;i<lb.length;i++){ if(lb[i].name.toLowerCase()===name.toLowerCase()){ei=i;break;} }
+  if(ei>=0){ if(score>lb[ei].score) lb[ei]={name:name,foods:foods,score:score}; }
+  else lb.push({name:name,foods:foods,score:score});
+  lb.sort(function(a,b){return b.score-a.score;});
+  if(lb.length>100) lb=lb.slice(0,100);
+  saveLB(lb);
+  updateProgress();
+  plate=[];
+  updateAll();
+  showToast('Saved! Score: '+score);
+  loadLB(name);
+  showPage('brain', document.querySelectorAll('.nav-btn')[1]);
+}
+
+function loadLB(hl){
+  var lb=getLB();
+  var t3=document.getElementById('lb-top3');
+  var rest=document.getElementById('lb-rest');
+  t3.innerHTML=''; rest.innerHTML='';
+  var mi=-1;
+  if(hl){ for(var i=0;i<lb.length;i++){ if(lb[i].name.toLowerCase()===hl.toLowerCase()){mi=i;break;} } }
+  document.getElementById('lb-rank').textContent=mi>=0?'#'+(mi+1):'--';
+  document.getElementById('lb-best').textContent=mi>=0?lb[mi].score:0;
+  if(!lb.length){
+    t3.innerHTML='<div style="grid-column:1/-1;text-align:center;font-size:13px;color:var(--tx3);padding:1rem;">No players yet - be the first!</div>';
+    return;
+  }
+  var pcls=['p1','p2','p3']; var plbls=['1st','2nd','3rd'];
+  for(var i=0;i<Math.min(3,lb.length);i++){
+    var d=document.createElement('div'); d.className='pod '+pcls[i];
+    d.innerHTML='<div class="pr">'+plbls[i]+'</div><div class="pn">'+lb[i].name+'</div><div class="ps">'+lb[i].score+' pts</div>';
+    t3.appendChild(d);
+  }
+  for(var i=3;i<lb.length;i++){
+    var rank=i+1; var ac=AV_COLS[rank%AV_COLS.length];
+    var isYou=hl&&lb[i].name.toLowerCase()===hl.toLowerCase();
+    var row=document.createElement('div'); row.className='lb-row'+(isYou?' you':'');
+    var initials=lb[i].name.substring(0,2).toUpperCase();
+    var foodsStr=lb[i].foods.slice(0,3).join(', ');
+    row.innerHTML='<div class="lbn">'+rank+'</div>'
+      +'<div class="lbav" style="background:'+ac[0]+';color:'+ac[1]+'">'+initials+'</div>'
+      +'<div class="lbi"><div class="lbp">'+lb[i].name+(isYou?' (you)':'')+'</div><div class="lbf">'+foodsStr+'</div></div>'
+      +'<div class="lbs">'+lb[i].score+'</div>';
+    rest.appendChild(row);
+  }
+}
+
+function updateProgress(){
+  document.getElementById('ps').textContent=localHistory.length;
+  var sum=0; for(var i=0;i<localHistory.length;i++) sum+=localHistory[i].score;
+  document.getElementById('pa').textContent=localHistory.length?Math.round(sum/localHistory.length):0;
+  var best=0; for(var i=0;i<localHistory.length;i++){ if(localHistory[i].score>best) best=localHistory[i].score; }
+  document.getElementById('pb').textContent=best;
+  var hl=document.getElementById('hist');
+  if(!localHistory.length){
+    hl.innerHTML='<div class="empty-state" style="padding:1.5rem 0;"><div class="big">🌱</div>No sessions yet - build your first plate!</div>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<localHistory.length;i++){
+    var h=localHistory[i];
+    var isBest=h.score===best&&best>0;
+    html+='<div class="he'+(isBest?' best':'')+'"><div><div class="hef">'+h.foods.join(', ')+'</div><div class="hed">'+h.date+(isBest?' - personal best!':'')+'</div></div><div class="hes">'+h.score+'</div></div>';
+  }
+  hl.innerHTML=html;
+}
+
+function showPage(name,btn){
+  var pages=document.querySelectorAll('.page');
+  for(var i=0;i<pages.length;i++) pages[i].classList.remove('active');
+  var btns=document.querySelectorAll('.nav-btn');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  document.getElementById('pg-'+name).classList.add('active');
+  btn.classList.add('active');
+  document.querySelector('.page-content').scrollTop=0;
+  if(name==='lb'){ var n=document.getElementById('pname').value.trim(); loadLB(n||null); }
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+buildGrids();
+buildMeters();
+loadLB(null);
+</script>
+</body>
+</html>
